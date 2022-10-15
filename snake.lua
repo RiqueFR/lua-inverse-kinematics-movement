@@ -3,8 +3,24 @@ require("segment")
 Snake = {}
 Snake.__index = Snake
 
-function Snake.new(initialX, initialY, numSegments, segmentLength)
+
+local function getRelativeAngle(angleA, angleB)
+		local angle = angleB+math.pi - angleA
+		if angle > math.pi then
+			return angle - 2*math.pi
+		elseif angle < -math.pi then
+			return angle + 2*math.pi
+		end
+		return angle
+end
+
+function Snake.new(initialX, initialY, numSegments, segmentLength, constraint)
 	local instance = setmetatable({}, Snake)
+	instance.enableConstraints = false
+	if constraint ~= nil then
+		instance.enableConstraints = true
+	end
+	instance.constraint = constraint or 0
 	instance.numSegments = numSegments
 	instance.segmentLength = segmentLength
 	instance.segments = {}
@@ -25,6 +41,18 @@ function Snake:update(dt)
 		seg = self.segments[i]
 		local previous = self.segments[i-1]
 		seg:follow(previous.pointA.x, previous.pointA.y)
+		if self.enableConstraints then
+			local deltaAngle = getRelativeAngle(previous.angle, seg.angle)
+			if math.abs(deltaAngle) < self.constraint then
+				if deltaAngle < 0 then
+					seg.angle = (previous.angle - self.constraint) + math.pi
+					seg:setB(previous.pointA.x, previous.pointA.y)
+				else
+					seg.angle = (previous.angle + self.constraint) + math.pi
+					seg:setB(previous.pointA.x, previous.pointA.y)
+				end
+			end
+		end
 		seg:update(dt)
 	end
 end

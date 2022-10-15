@@ -14,6 +14,22 @@ function Segment.new(x, y, length, angle)
 	return instance
 end
 
+function Segment:setA(x, y)
+	self.pointA.x = x
+	self.pointA.y = y
+	self:calculateB()
+end
+function Segment:setB(x, y)
+	self.pointB.x = x
+	self.pointB.y = y
+	self:calculateA()
+end
+
+function Segment:calculateA()
+	local dx = self.length * math.cos(self.angle)
+	local dy = self.length * math.sin(self.angle)
+	self.pointA:set(self.pointB.x - dx, self.pointB.y - dy)
+end
 
 function Segment:calculateB()
 	local dx = self.length * math.cos(self.angle)
@@ -25,7 +41,7 @@ end
 function Segment:follow(x, y)
 	local dx = x - self.pointA.x
 	local dy = y - self.pointA.y
-	self.angle = math.pi*2 + math.atan2(dy, dx)
+	self.angle = (math.pi*2 + math.atan2(dy, dx)) % (2*math.pi)
 
 	local delta = Vector.new(dx, dy)
 	delta:setMagnitude(self.length)
@@ -36,6 +52,7 @@ end
 
 function Segment:update(dt)
 	self:calculateB()
+	self.angle = (self.angle) % (2*math.pi)
 end
 
 

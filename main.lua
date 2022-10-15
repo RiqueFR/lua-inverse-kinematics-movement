@@ -3,7 +3,7 @@ require("snake")
 
 function love.load()
 	pause = false
-	snake = Snake.new(400, 300, 100, 5)
+	snake = Snake.new(400, 300, 5, 50, 4*math.pi/6)
 end
 
 function love.update(dt)
